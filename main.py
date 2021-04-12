@@ -1,8 +1,6 @@
 import streamlit as st
 
-st.title("Hola, aquí irá la aplicación ...")
-st.write("Nos vemos pronto")
-
+# Everything is accessible via the st.secrets dict:
 
 st.write("DB username:", st.secrets["db_username"])
 st.write("DB password:", st.secrets["db_password"])
