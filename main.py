@@ -4,6 +4,6 @@ import streamlit as st
 
 st.title("Resultados")
 
-st.write("DB username:", st.secrets["USUARIO"])
+st.write("Usuario:", st.secrets["USUARIO"])
 
 
