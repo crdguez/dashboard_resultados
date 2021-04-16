@@ -17,5 +17,8 @@ if key == st.secrets["USUARIO"] :
 
   st.write("Usuario:", st.secrets["USUARIO"])
   st.dataframe(df)
+  
+else :
+  st.write('No estás autorizado')
 
   
