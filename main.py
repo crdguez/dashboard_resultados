@@ -4,16 +4,18 @@ import requests
 import pandas as pd
 from io import StringIO
 
-url='https://gitlab.com/api/v4/projects/16754108/repository/files/importado1.csv/raw'
-#url='https://gitlab.com/api/v4/projects/8982377/repository/files/importado1.csv/raw?ref=master&private_token='+st.secrets["TOKEN"]
-st.write(url)
-df = pd.read_csv(StringIO(requests.get(url).text))
+key = st.text_input('clave de acceso:')
+if key == st.secrets["USUARIO"] :
+  url='https://gitlab.com/api/v4/projects/16754108/repository/files/importado1.csv/raw'
+  #url='https://gitlab.com/api/v4/projects/8982377/repository/files/importado1.csv/raw?ref=master&private_token='+st.secrets["TOKEN"]
+  st.write(url)
+  df = pd.read_csv(StringIO(requests.get(url).text))
 
-# Everything is accessible via the st.secrets dict:
+  # Everything is accessible via the st.secrets dict:
 
-st.title("Resultados")
+  st.title("Resultados")
 
-st.write("Usuario:", st.secrets["USUARIO"])
-st.dataframe(df)
+  st.write("Usuario:", st.secrets["USUARIO"])
+  st.dataframe(df)
 
-
+  
