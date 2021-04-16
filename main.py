@@ -22,6 +22,10 @@ if key == st.secrets["USUARIO"] :
   pre_actilla = pre_actilla.copy()
   pre_actilla['Eval'] = eval
   pre_actilla.Asignatura=pre_actilla.Asignatura.str.replace('\n', ' ')
+  actilla_final = pre_actilla
+  actilla_final = actilla_final.rename(columns={'Apellidos, Nombre':'Alumno'})
+  actilla_final = actilla_final[['Alumno','Asignatura','Eval','Nota']]
+  actilla_final['Suspenso']=0
 
   # Everything is accessible via the st.secrets dict:
 
@@ -29,7 +33,7 @@ if key == st.secrets["USUARIO"] :
 
   st.write("Usuario:", st.secrets["USUARIO"])
   st.dataframe(df)
-  st.dataframe(pre_actilla)
+  st.dataframe(actilla_final)
   
 else :
   st.write('Para acceder a los datos tienes que introducir una clave de acceso correcta')
