@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import requests
+import pandas as pd
 from io import StringIO
 
 url='https://gitlab.com/api/v4/projects/16754108/repository/files/importado1.csv/raw'
