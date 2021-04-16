@@ -13,6 +13,7 @@ if key == st.secrets["USUARIO"] :
   st.write(url)
   df = pd.read_csv(StringIO(requests.get(url).text))
   
+  eval=1
   pre_actilla = pd.read_csv(StringIO(requests.get(url).text), index_col=False, encoding='utf-8')
   pre_actilla = pre_actilla.drop([col for col in pre_actilla if col.startswith('Unna')], axis=1)
   pre_actilla = pre_actilla.drop("Nº MNS", axis = 1)
