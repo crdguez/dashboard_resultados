@@ -2,3 +2,4 @@ matplotlib
 sympy
 antlr4-python3-runtime==4.7.1
 pandas
+streamlit
