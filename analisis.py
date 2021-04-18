@@ -77,7 +77,7 @@ def actilla(urls):
         .applymap(evaluaciones_anteriores, subset=(df5.index,df5.columns[df5.columns.get_level_values(1) != ultima_evaluacion])) \
         .set_na_rep('-')
 
-    return actilla_estilada
+    return actilla, actilla_estilada
 
 
 def analisis_df(df, txt_intro ="Tenemos los siguientes datos: \n " \
@@ -86,7 +86,8 @@ def analisis_df(df, txt_intro ="Tenemos los siguientes datos: \n " \
                 modo=1) :
     # analiza los datos de un dataframe donde en el indice están las evaluaciones y en las columnas los items a analizar
     if max(df.index)  > 1 :
-        ix = list(df.index).index(ultima_evaluacion)
+        # ix = list(df.index).index(ultima_evaluacion)
+        ix = len(df.index) - 1
         txt = txt_intro
         for c in range(len(df.columns)) :
             if (df.iloc[ix,c] - df.iloc[ix-1,c]) > 0 : txt2 = txt_mejor.format(df[df.columns[c]].name)+" Pasa de {} a {}. ".format(str(df.iloc[ix-1,c]),str(df.iloc[ix,c]))
@@ -159,13 +160,11 @@ def evaluaciones_anteriores(val):
 def app() :
 
     st.title('Ánalisis de resultados (en construcción)')
-    st.title("Resultados")
 
     # lista_evaluaciones = ['1','2','3']
     lista_evaluaciones = ['1','2']
-    eval = int(st.radio('Selecciona el ńúmero de evaluaciones:',lista_evaluaciones))
-
-    st.write('Has seleccionado: '+str(eval))
+    eval = int(st.radio('Selecciona evaluación:',lista_evaluaciones, index=len(lista_evaluaciones)-1))
+    st.title("Resultados en la "+str(eval)+"ª evaluación")
 
     # url='https://gitlab.com/api/v4/projects/16754108/repository/files/importado1.csv/raw'
     # url='https://gitlab.com/api/v4/projects/8982377/repository/files/importado1.csv/raw?ref=master&private_token='+st.secrets["TOKEN"]
@@ -173,12 +172,21 @@ def app() :
     st.subheader('Actilla')
     ultima_evaluacion = len(urls)
 
+    st.write('Información generada a partir de: ')
     st.write(urls)
-    actilla_final = actilla(urls)
-    st.dataframe(actilla_final)
+    actilla_final, actilla_final_estilada = actilla(urls)
+    st.dataframe(actilla_final_estilada)
 
 
-    st.subheader('Gráficos')
+    st.subheader('Resumen de resultados')
+
+    df = actilla_final.groupby(['Eval'])[['Alumno','Nota','Suspenso']].aggregate({'Alumno':'nunique','Nota':'mean','Suspenso':'sum'}).rename(columns={'Alumno':'N_al', 'Nota':'Media', 'Suspenso':'N_susp'})
+    df['Susp_alu']=(df['N_susp']/df['N_al']).round(2)
+    df['Media']=df['Media'].round(2)
+    df2 = df.rename(columns={'N_al':'número de alumnos', 'Media':'nota media', 'N_susp':'número de suspensos','Susp_alu':'número de suspensos por alumno'}).iloc[:,1:]
+
+    st.info(analisis_df(df2,txt_intro="A nivel de grupo, se tienen los siguientes datos: \n ", modo=2)[0])
+
 
     fig = plt.figure(figsize=(22,15))
     fig.suptitle('Estadísticas {}ª Evaluación'.format(ultima_evaluacion), fontsize=20)
@@ -198,6 +206,7 @@ def app() :
     df2 = df.groupby(pd.cut(df, ranges, right=False)).count()
     df2.name = 'Alumnos'
     g1=df2[df2 > 0].plot(kind='pie', title = 'Alumnos y Nota media',autopct='%1.1f%%', legend = True, table=True, ax=ax1, ylabel="", fontsize=24)
+    # , fontsize=24
     ax2 = fig.add_subplot(gs[0, 1])
     df = actilla_final[actilla_final.Eval==ultima_evaluacion].groupby('Alumno').sum().Suspenso
     ranges = [0,1,2,3,5,10]
@@ -209,4 +218,4 @@ def app() :
     st.pyplot(fig)
 
 
-    st.write("Usuario:", st.secrets["USUARIO"])
+    # st.write("Usuario:", st.secrets["USUARIO"])
