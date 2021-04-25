@@ -125,34 +125,30 @@ def analisis_alumno(df,a,eval) :
     df2.Nota = df2.Nota.round(2)
     df2 = df2.rename(columns={'Nota':'Nota media', 'Suspenso':'Número de suspensos'})
     st.subheader(a)
-    st.dataframe(df2)
-    st.write(analisis_df(df2, "En la {}ªev: \n ".format(ultima_evaluacion),txt_igual="\n * Mantiene {}")[0])
-    # txt = "\n\n### {} \n".format(a)
-    # txt += " {}".format(analisis_df(df2, "",txt_igual="\n * Mantiene {}:", modo=3)[0])
-    # texto += txt
-    # texto3 += txt
+    # st.dataframe(df2)
+    st.write(analisis_df(df2, "En la {}ª evaluación: \n ".format(ultima_evaluacion),txt_igual="\n * Mantiene {}")[0])
 
     #Lista de suspensos
     df2 = df[(df.Alumno==a) & (df.Suspenso==1) & (df.Eval == ultima_evaluacion)][['Asignatura','Eval','Suspenso']]
     if len(df2[['Asignatura']].values) > 0 :
-        st.write("Tiene suspensos:")
-        st.dataframe(df2)
-        # st.write(analisis_df(df2, "En la {}ªev: \n ".format(ultima_evaluacion),txt_igual="\n * Mantiene {}")[0])
-        # txt="* Suspensos: " + ", ".join([i[0] for i in df2[['Asignatura']].values])
-        # texto += "\n\n{} \n".format(txt)
-        # texto3 += "\n\n{} \n".format(txt)
-        # print(txt)
-
+        st.write("Asignaturas suspendidas: "+",".join(list(df2['Asignatura'])))
+        # st.dataframe(df2)
 
     #Análisis de las notas
     df2 = df[(df.Alumno == a) & (df.Eval <= ultima_evaluacion)].iloc[:,1:-1].groupby(['Asignatura','Eval']).min().unstack('Asignatura')
     df2.columns = df2.columns.get_level_values(1)
-    st.dataframe(df2)
-    st.write(analisis_df(df2, "Resultados: \n ", "Sube en {}:", "Baja en {}:", "En {}:", solo_diferencias=True)[0])
-    # texto += "\n{}\n".format(df2.to_markdown())
-    # txt =  analisis_df(df2, "\n\n * Resultados: ", "Sube en {}:", "**Baja** en {}:", "En {}:", solo_diferencias=True, modo=3)[0]
-    # texto +=  txt
-    # texto3 += txt
+    st.write('**Calificaciones obtenidas por evaluación:**')
+    st.dataframe(df2.style.applymap(color_negative_red).highlight_null("white"))
+    # st.write(analisis_df(df2, "Resultados: \n ", "Sube en {}:", "Baja en {}:", "En {}:", solo_diferencias=True)[0])
+
+    g = df2.T.plot.barh(title=a, xlabel ="", width=0.8)
+    g.legend(loc='lower left')
+
+    for p in g.patches:
+        g.annotate(str(p.get_width()), (p.get_width() , p.get_y()*1.01))
+    fig3=g.get_figure()
+    st.pyplot(fig3)
+
 
 
 

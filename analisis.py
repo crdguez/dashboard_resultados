@@ -3,44 +3,36 @@ from libreria_funciones import *
 
 def app(OPCIONES) :
 
-    st.title('Ánalisis de resultados (en construcción)')
 
-    # lista_evaluaciones = ['1','2','3']
-    # lista_evaluaciones = ['1','2']
-    # eval = int(st.sidebar.selectbox('Selecciona evaluación:',lista_evaluaciones, index=len(lista_evaluaciones)-1))
+
     curso=OPCIONES['curso']
     clase=OPCIONES['clase']
     eval=OPCIONES['eval']
 
+    st.title('Resultados generales de la '+str(eval)+'ª evaluación')
+
     st.markdown('---')
-    st.header("Resultados de la "+str(eval)+"ª evaluación")
 
-    # url='https://gitlab.com/api/v4/projects/16754108/repository/files/importado1.csv/raw'
-    # url='https://gitlab.com/api/v4/projects/8982377/repository/files/importado1.csv/raw?ref=master&private_token='+st.secrets["TOKEN"]
-
-
-    # urls=['https://gitlab.com/api/v4/projects/8982377/repository/files/importado'+str(i+1)+'.csv/raw?ref=master&private_token='+st.secrets["TOKEN"] for i in range(eval)]
     urls=[r'https://gitlab.com/api/v4/projects/8982377/repository/files/datos_actas%2F'+curso+r'%2F'+clase+r'%2Fimportado'+str(i+1)+'.csv/raw?ref=master&private_token='+st.secrets["TOKEN"] for i in range(eval)]
+    datos_act, datos_act_estilada = actilla(urls)
 
-    st.subheader('Actilla')
+    # st.header("Resultados de la "+str(eval)+"ª evaluación")
+
     ultima_evaluacion = len(urls)
 
-    st.write('Información generada a partir de: ')
-    st.write(urls)
-    datos_act, datos_act_estilada = actilla(urls)
+    # st.write('Información generada a partir de: ')
+    # st.write(urls)
+
     # Normalizamos para evitar problemas con
     # datos_act = datos_act.iloc[datos_act['Alumno'].str.normalize('NFKD').argsort()]
 
-    #Seleccionamos alumno
-    al = st.selectbox('Selecciona alumno:',list(datos_act['Alumno'].unique()))
-    analisis_alumno(datos_act,al,eval)
-
-    #st.dataframe(datos_brutos(urls))
+    st.header('Actilla de resultados')
+    # st.dataframe(datos_brutos(urls))
 
     st.dataframe(datos_act_estilada)
 
 
-    st.subheader('Resumen de resultados')
+    st.header('Resumen de resultados')
 
     df = datos_act.groupby(['Eval'])[['Alumno','Nota','Suspenso']].aggregate({'Alumno':'nunique','Nota':'mean','Suspenso':'sum'}).rename(columns={'Alumno':'N_al', 'Nota':'Media', 'Suspenso':'N_susp'})
     df['Susp_alu']=(df['N_susp']/df['N_al']).round(2)
@@ -52,15 +44,24 @@ def app(OPCIONES) :
 
     fig = plt.figure(figsize=(22,15))
     fig.suptitle('Estadísticas {}ª Evaluación'.format(ultima_evaluacion), fontsize=20)
-    gs = gridspec.GridSpec(nrows=2, ncols=2, height_ratios=[2, 1])
+    gs = gridspec.GridSpec(nrows=3, ncols=2, height_ratios=[4, 2, 2])
 
-    ax0 = fig.add_subplot(gs[1, :])
+    ax0 = fig.add_subplot(gs[2, :])
     df=datos_act.groupby(['Alumno','Eval'])[['Nota']].mean().round(2).rename(columns={'Nota':'Media'}).unstack()
     df.columns = df.columns.get_level_values(1)
     g3=df.plot.bar(title='Nota media por alumno',ax=ax0, xlabel="", fontsize=18)
     g3.legend(loc='lower right')
     for p in g3.patches:
         g3.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
+
+    ax3 = fig.add_subplot(gs[1, :])
+    df=datos_act.groupby(['Asignatura','Eval'])[['Nota']].mean().round(2).rename(columns={'Nota':'Media'}).unstack()
+    df.columns = df.columns.get_level_values(1)
+    g4=df.plot.bar(title='Nota media por asignatura',ax=ax3, xlabel="", fontsize=12, rot=0)
+    g4.legend(loc='lower right')
+    for p in g4.patches:
+        g4.annotate(str(p.get_height()), (p.get_x() * 1.005, p.get_height() * 1.005))
+
 
     ax1 = fig.add_subplot(gs[0, 0])
     df = datos_act[datos_act.Eval==ultima_evaluacion].groupby('Alumno').mean().Nota
