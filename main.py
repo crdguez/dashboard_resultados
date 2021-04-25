@@ -1,7 +1,10 @@
 import streamlit as st
 import requests
 import pandas as pd
+import gitlab
+
 from io import StringIO
+
 
 import intro
 import analisis
@@ -22,14 +25,40 @@ st.sidebar.header('Acceso')
 
 key = st.sidebar.text_input('Introduce clave de acceso:', type="password")
 if key == st.secrets["PASS"] :
-    st.sidebar.header('Opciones')
-    selection = st.sidebar.radio("Selecciona:", list(PAGES.keys()),index=0)
 
+    st.sidebar.header('Opciones')
+
+    gl = gitlab.Gitlab('https://gitlab.com', private_token=st.secrets["TOKEN"])
+    p=gl.projects.get(8982377)
+    st.write(p.repository_tree('datos_actas'))
+    df = pd.DataFrame(p.repository_tree('datos_actas'))
+    st.write(list(df['name']))
+    curso = st.sidebar.selectbox('Seleccione curso', list(df['name']))
+    st.write(curso)
+    df2 = pd.DataFrame(p.repository_tree('datos_actas/'+curso))
+    clase = st.sidebar.selectbox('Seleccione clase', list(df2['name']))
+    st.write(clase)
+    df3 = pd.DataFrame(p.repository_tree('datos_actas/'+curso+'/'+clase))
+    lista_evaluaciones = range(1,len(list(df3['name']))+1)
+
+    eval = st.sidebar.selectbox('Seleccione evaluación', lista_evaluaciones)
+    st.write(eval)
+    # lista_evaluaciones = ['1','2']
+
+    # eval = int(st.sidebar.selectbox('Seleccione evaluación:',lista_evaluaciones, index=len(lista_evaluaciones)-1))
+    # eval = int(st.sidebar.selectbox('Seleccione evaluación:',lista_evaluaciones, index=len(lista_evaluaciones)-1))
+
+    OPCIONES =  {
+        'curso': curso,
+        'clase': clase,
+        'eval': eval
+    }
+    # st.sidebar.header('Navegación')
+    selection = st.sidebar.radio("Navegar a:", list(PAGES.keys()),index=0)
     if selection == list(PAGES.keys())[1] :
         # Aquí le pasaré la función
         # tipo = st.sidebar.radio("Tipo de función:", list(FUNCIONES.keys()),index=1)
-
-        analisis.app()
+        analisis.app(OPCIONES)
     if selection == list(PAGES.keys())[0] :
         # Aquí le pasaré la función
         intro.app()
