@@ -22,5 +22,4 @@ docker start resultados
 
 ```
 
-Y en un navegador: [http://localhost:8501/](http://localhost:8501/)
-
+Y en un navegador: [http://localhost:8501/](http://localhost:8501/) .
