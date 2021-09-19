@@ -6,7 +6,7 @@ from PIL import Image
 def app() :
     st.spinner("Un poco de paciencia ...")
     st.title('Análisis de Resultados')
-    col11, col12 = st.beta_columns([1,1])
+    col11, col12 = st.columns([1,1])
 
     with col12 :
     # image = Image.open('img/parabolas_red.jpg')
