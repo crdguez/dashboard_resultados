@@ -35,7 +35,7 @@ if key == st.secrets["PASS"] :
     df = pd.DataFrame(p.repository_tree('datos_actas'))
     # st.write(list(df['name']))
 
-    col1, col2, col3 = st.sidebar.beta_columns([1.5,1.5,1])
+    col1, col2, col3 = st.columns([1.5,1.5,1])
     with col1 :
         # curso = st.sidebar.selectbox('Curso', list(df['name'].sort_values(ascending=False)))
         curso = st.selectbox('Curso', list(df['name'].sort_values(ascending=False)))
